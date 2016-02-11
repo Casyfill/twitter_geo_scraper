@@ -17,12 +17,10 @@ def send_message(subject, text, recipients):
 
 
 def send_stats(cursor):
-	'''sends daily stats from scraper'''
-	today = datetime.datetime.today().strftime('%Y-%m-%d')
-	
-  s = 'Tweets: ' + cursor.execute('SELECT COUNT(*) FROM tweets').fetchone()[0] + \
-      '\nUnique Users: ' + cursor.execute('SELECT COUNT(distinct id) FROM users').fetchone()[0]
+  '''sends daily stats from scraper'''
+  today = datetime.datetime.today().strftime('%Y-%m-%d')
+  s = 'DO server is working fine. stats unknown'
+  # s = 'Tweets: ' + cursor.execute('SELECT COUNT(*) FROM tweets').fetchone()[0] + '\nUnique Users: ' + cursor.execute('SELECT COUNT(distinct id) FROM users').fetchone()[0]
 
-
-	send_message('%s daily stats: Twitter scraping' % today, s, mailCredentials['recipients'])
+  send_message('%s daily stats: Twitter scraping' % today, s, mailCredentials['recipients'])
 

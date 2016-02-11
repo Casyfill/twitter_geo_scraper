@@ -1,6 +1,9 @@
-from auth import getTwitter
-from setup import setup
+from misc.auth import getTwitter
+from misc.setup import setup
+from misc
+from misc import mailer
 
+import logging
 import time
 import datetime
 import csv
@@ -9,10 +12,10 @@ import sqlite3
 import signal
 import sys
 import os
-import mailer
+
 
 # create DB if does not exist
-if not os.path.isfile(os.getenv('PWD') + '/twitter.db'):
+if not os.path.isfile( 'twitter.db'):
     print 'creating DB'
     setup()
 
@@ -44,8 +47,10 @@ nodes = [
 # Total of 20 seconds sleep between rounds
 sleep = 20.
 today = datetime.datetime.today()
+config_logger()
 
 while True:
+
     for node in nodes:
         # Execute Query
         try:
@@ -102,7 +107,8 @@ while True:
             conn = sqlite3.connect('twitter.db')
 
         # MAIL REPORT 
-        if (datetime.datatime.now() - today).days > 1:
+        # print '!!!!!:', (datetime.datetime.now() - today).days
+        if (datetime.datetime.now() - today).days >0:
             mailer.send_stats(conn)
             today = datetime.datetime.today()
 
