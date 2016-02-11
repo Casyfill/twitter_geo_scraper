@@ -9,6 +9,7 @@ import sqlite3
 import signal
 import sys
 import os
+import mailer
 
 # create DB if does not exist
 if not os.path.isfile(os.getenv('PWD') + '/twitter.db'):
@@ -24,6 +25,7 @@ def signal_handler(signal, frame):
     conn.close()
     sys.stdout.flush()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -41,6 +43,7 @@ nodes = [
 
 # Total of 20 seconds sleep between rounds
 sleep = 20.
+today = datetime.datetime.today()
 
 while True:
     for node in nodes:
@@ -97,6 +100,11 @@ while True:
         except:
             time.sleep(60)
             conn = sqlite3.connect('twitter.db')
+
+        # MAIL REPORT 
+        if (datetime.datatime.now() - today).days > 1:
+            mailer.send_stats(conn)
+            today = datetime.datetime.today()
 
         # Sleep between nodes
         time.sleep(sleep/len(nodes))
