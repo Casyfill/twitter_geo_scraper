@@ -3,7 +3,7 @@ from auth import scraperID
 import datetime
 
 def setup():
-	ID = scraperID + '_' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+	ID = scraperID + '2_' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 	path = 'data/%s.db' % ID
 	
 	conn = sqlite3.connect(path)
