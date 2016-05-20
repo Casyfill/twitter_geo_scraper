@@ -1,28 +1,37 @@
 from misc.auth import getTwitter
 from misc.setup import setup
-from misc import mailer
+from misc.logger import getLogger
+# from misc import mailer
 
 import time
 import datetime
-import csv
+# import csv
 import json
 import sqlite3
 import signal
 import sys
-import os
+# import os
 import re
+
 
 def getSource(txt):
     sourcer = re.compile('(?:.*>)(.*)(?:<\/a>)')
-    return sourcer.search(txt).groups()[0]
+    x = sourcer.search(txt)
+    if x:
+        return x.groups()[0]
+    else:
+        return 'unknnown'
+
 
 def main():
-    print 'scraping!'
+    '''main process'''
+    logger = getLogger()
+
     # create DB if does not exist
-    
     ID = setup()
 
     # Connect to DB
+    logger.info('Connecting to %s.db' is ID)
     conn = sqlite3.connect('data/%s.db' % ID)
 
     def signal_handler(signal, frame):
@@ -33,6 +42,7 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    logger.info('Getting twitter connection')
     twitter = getTwitter()
 
     nodes = [
@@ -47,7 +57,7 @@ def main():
 
     # Total of 20 seconds sleep between rounds
     sleep = 20.
-    today = datetime.datetime.today()
+    # today = datetime.datetime.today()
 
     while True:
         for node in nodes:
@@ -56,7 +66,7 @@ def main():
                 t = twitter.search.tweets(geocode=node['geocode'], result_type='recent',
                                           count=100, since_id=node['since'])
             except Exception, e:
-                print e
+                logger.info('Error getting tweet: %s' % e)
                 # Could be twitter is overloaded, sleep for a minute before
                 # starting again
                 time.sleep(60)
@@ -72,20 +82,17 @@ def main():
             # Go through the results and create arrays to add to DB
             tweets = []
             users = []
-
+            logger.info('Collecting geotagged tweets')
             for status in t['statuses']:
-                if status['geo']!=None:
-                    
+                if status['geo'] != None:
+
                     user = status['user']
                     del status['user']
-
-                    
 
                     timestamp = int(datetime.datetime.strptime(
                         status['created_at'],
                         '%a %b %d %H:%M:%S +0000 %Y'
                     ).strftime("%s"))
-
 
                     tweets.append((
                         status['id'],
@@ -112,27 +119,24 @@ def main():
             # Add to DB
             try:
                 cursor = conn.cursor()
-                cursor.executemany(
-                    'INSERT OR IGNORE INTO tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tweets)
+                cursor.executemany('INSERT OR IGNORE INTO tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tweets)
                 cursor.executemany(
                     'INSERT OR IGNORE INTO users VALUES (?, ?, ?)', users)
                 conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
-            except:
-                time.sleep(60)
-                conn = sqlite3.connect('twitter.db')
+                logger.info('Saved tweets to db: %d' % len(tweets))
 
-            # MAIL REPORT
-            # print '!!!!!:', (datetime.datetime.now() - today).days
-            # if (datetime.datetime.now() - today).days > 0:
-            #     mailer.send_stats(conn)
-            #     today = datetime.datetime.today()
+            except Exception, e:
+                logger.info('Failed saving tweets, reconnecting: %s' % e)
+                time.sleep(60)
+                conn = sqlite3.connect('data/%s.db' % ID)
 
             # Sleep between nodes
             time.sleep(sleep / len(nodes))
 
         sys.stdout.flush()
+        logger.info('flushed connection')
 
 if __name__ == '__main__':
     main()
