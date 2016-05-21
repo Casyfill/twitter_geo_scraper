@@ -26,7 +26,7 @@ def getSource(txt):
 def main():
     '''main process'''
     logger = getLogger()
-
+    logger.info('%s: start logging' % datetime.datetime.now().strftime('%Y_%m_%d'))
     # create DB if does not exist
     ID = setup()
 
@@ -56,10 +56,11 @@ def main():
     ]
 
     # Total of 20 seconds sleep between rounds
-    sleep = 20.
+    sleepTime = 20. / len(nodes)
     # today = datetime.datetime.today()
 
     while True:
+        logger.info('cycle: getting tweets...')
         for node in nodes:
             # Execute Query
             try:
@@ -81,8 +82,8 @@ def main():
 
             # Go through the results and create arrays to add to DB
             tweets = []
-            users = []
-            logger.info('Collecting geotagged tweets')
+            # users = []
+            # logger.info('Collecting geotagged tweets')
             for status in t['statuses']:
                 if status['geo'] != None:
 
@@ -107,11 +108,11 @@ def main():
                         ID,
                         json.dumps(status)
                     ))
-                    users.append((
-                        user['id'],
-                        timestamp,
-                        json.dumps(user)
-                    ))
+                    # users.append((
+                    #     user['id'],
+                    #     timestamp,
+                    #     json.dumps(user)
+                    # ))
 
                 else:
                     pass
@@ -119,13 +120,14 @@ def main():
             # Add to DB
             try:
                 cursor = conn.cursor()
-                cursor.executemany('INSERT OR IGNORE INTO tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tweets)
+                cursor.executemany(
+                    'INSERT OR IGNORE INTO tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tweets)
                 cursor.executemany(
                     'INSERT OR IGNORE INTO users VALUES (?, ?, ?)', users)
                 conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
-                logger.info('Saved tweets to db: %d' % len(tweets))
+
 
             except Exception, e:
                 logger.info('Failed saving tweets, reconnecting: %s' % e)
@@ -133,7 +135,8 @@ def main():
                 conn = sqlite3.connect('data/%s.db' % ID)
 
             # Sleep between nodes
-            time.sleep(sleep / len(nodes))
+            # logger.info('sleep for %f' % sleepTime)
+            time.sleep(sleepTime)
 
         sys.stdout.flush()
         logger.info('flushed connection')
