@@ -82,7 +82,7 @@ def main():
 
             # Go through the results and create arrays to add to DB
             tweets = []
-            # users = []
+            users = []
             # logger.info('Collecting geotagged tweets')
             for status in t['statuses']:
                 if status['geo'] != None:
@@ -108,11 +108,11 @@ def main():
                         ID,
                         json.dumps(status)
                     ))
-                    # users.append((
-                    #     user['id'],
-                    #     timestamp,
-                    #     json.dumps(user)
-                    # ))
+                    users.append((
+                        user['id'],
+                        timestamp,
+                        json.dumps(user)
+                    ))
 
                 else:
                     pass
