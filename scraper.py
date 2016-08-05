@@ -26,7 +26,8 @@ def getSource(txt):
 def main():
     '''main process'''
     logger = getLogger()
-    logger.info('%s: start logging' % datetime.datetime.now().strftime('%Y_%m_%d'))
+    timestamp = datetime.datetime.now().strftime('%Y_%m_%d')
+    logger.info('%s: start logging' % timestamp)
     # create DB if does not exist
     ID = setup()
 
@@ -46,9 +47,9 @@ def main():
     twitter = getTwitter()
 
     nodes = [
-        #{'geocode': '40.783288,-73.967090,7mi', 'since': '0'},
-        #{'geocode': '40.729992,-73.993841,7mi', 'since': '0'},
-        #{'geocode': '40.830778,-73.942806,7mi', 'since': '0'}
+        # {'geocode': '40.783288,-73.967090,7mi', 'since': '0'},
+        # {'geocode': '40.729992,-73.993841,7mi', 'since': '0'},
+        # {'geocode': '40.830778,-73.942806,7mi', 'since': '0'}
         {'geocode': '40.830956,-73.910179,7mi', 'since': '0'},
         {'geocode': '40.663972,-73.956871,8mi', 'since': '0'},
         {'geocode': '40.688708,-73.779544,8mi', 'since': '0'},
@@ -64,7 +65,8 @@ def main():
         for node in nodes:
             # Execute Query
             try:
-                t = twitter.search.tweets(geocode=node['geocode'], result_type='recent',
+                t = twitter.search.tweets(geocode=node['geocode'],
+                                          result_type='recent',
                                           count=100, since_id=node['since'])
             except Exception, e:
                 logger.info('Error getting tweet: %s' % e)
@@ -73,19 +75,12 @@ def main():
                 time.sleep(60)
                 continue
 
-            # Update since
-           # node['since'] = t['search_metadata']['max_id_str']
-
-            # Print status
-            # print node['geocode'], len(t['statuses']),
-            # str(datetime.datetime.now())
-
             # Go through the results and create arrays to add to DB
             tweets = []
             users = []
             # logger.info('Collecting geotagged tweets')
             for status in t['statuses']:
-                if status['geo'] != None:
+                if status['geo'] is not None:
 
                     user = status['user']
                     del status['user']
@@ -96,7 +91,7 @@ def main():
                     ).strftime("%s"))
 
                     tweets.append((
-                        status['id'],
+                        status['id_str'],
                         timestamp,
                         status['geo']['coordinates'][0],
                         status['geo']['coordinates'][1],
@@ -139,7 +134,6 @@ def main():
             time.sleep(sleepTime)
 
         sys.stdout.flush()
-        logger.info('flushed connection')
 
 if __name__ == '__main__':
     main()
