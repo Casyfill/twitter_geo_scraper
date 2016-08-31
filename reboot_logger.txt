@@ -1,0 +1,9 @@
+Sun Aug 21 14:13:47 EDT 2016 rebooting scraper
+Sun Aug 21 15:43:59 EDT 2016 rebooting scraper
+Sun Aug 21 16:00:01 EDT 2016 rebooting scraper
+Sun Aug 21 23:00:02 EDT 2016 rebooting scraper
+Mon Aug 22 18:10:50 EDT 2016 rebooting scraper
+Tue Aug 23 23:00:02 EDT 2016 rebooting scraper
+Thu Aug 25 23:00:02 EDT 2016 rebooting scraper
+Sat Aug 27 23:00:02 EDT 2016 rebooting scraper
+Mon Aug 29 23:00:02 EDT 2016 rebooting scraper
