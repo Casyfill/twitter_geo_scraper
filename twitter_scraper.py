@@ -40,7 +40,7 @@ def main():
     DB = setup(scraperID=settings['scraperID'], timestamp=timestamp)
 
     # Connect to DB
-    logger.info(f'Connecting to {DB}.db')
+    logger.info(f'Connecting to {DB}')
     conn = sqlite3.connect(DB)
 
     def signal_handler(signal, frame):
@@ -108,7 +108,7 @@ def main():
                         status['retweet_count'],
                         status['favorite_count'],
                         getSource(status['source']),
-                        ID,
+                        settings['scraperID'],
                         json.dumps(status)
                     ))
                     users.append((

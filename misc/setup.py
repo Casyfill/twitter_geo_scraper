@@ -4,7 +4,7 @@ import datetime
 from  pathlib import Path
 import os
 
-DATAPATH = Path(os.getenv("TWITTERDATAPATH"))
+DATAPATH = Path(os.path.expandvars(os.getenv("TWITTERDATAPATH")))
 
 def setup(scraperID, timestamp):
 	'''generate database'''
