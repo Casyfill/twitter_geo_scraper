@@ -2,6 +2,7 @@ from misc.auth import getTwitter
 from misc.setup import setup
 from misc.logger import getLogger
 # from misc import mailer
+import yaml
 
 import time
 import datetime
@@ -10,8 +11,13 @@ import json
 import sqlite3
 import signal
 import sys
-# import os
+import os
 import re
+
+def get_local_settings():
+    with open('settings.yaml', 'r') as f:
+        s = yaml.safe_load(f)
+    return s
 
 
 def getSource(txt):
@@ -26,14 +32,16 @@ def getSource(txt):
 def main():
     '''main process'''
     logger = getLogger()
-    timestamp = datetime.datetime.now().strftime('%Y_%m_%d')
-    logger.info('%s: start logging' % timestamp)
+    settings = get_local_settings()
+    timestamp = datetime.datetime.now()
+    logger.info('f{timestamp:%Y-%m-%d}: start logging')
+
     # create DB if does not exist
-    ID = setup()
+    DB = setup(scraperID=settings['scraperID'], timestamp=timestamp)
 
     # Connect to DB
-    logger.info('Connecting to %s.db' is ID)
-    conn = sqlite3.connect('data/%s.db' % ID)
+    logger.info(f'Connecting to {DB}.db')
+    conn = sqlite3.connect(DB)
 
     def signal_handler(signal, frame):
         # Close connection on interrupt
@@ -68,7 +76,7 @@ def main():
                 t = twitter.search.tweets(geocode=node['geocode'],
                                           result_type='recent',
                                           count=100, since_id=node['since'])
-            except Exception, e:
+            except Exception as e:
                 logger.info('Error getting tweet: %s' % e)
                 # Could be twitter is overloaded, sleep for a minute before
                 # starting again
@@ -124,7 +132,7 @@ def main():
                 node['since'] = t['search_metadata']['max_id_str']
 
 
-            except Exception, e:
+            except Exception as e:
                 logger.info('Failed saving tweets, reconnecting: %s' % e)
                 time.sleep(60)
                 conn = sqlite3.connect('data/%s.db' % ID)
