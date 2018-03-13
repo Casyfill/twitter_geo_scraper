@@ -34,7 +34,7 @@ def main():
     logger = getLogger()
     settings = get_local_settings()
     timestamp = datetime.datetime.now()
-    logger.info('f{timestamp:%Y-%m-%d}: start logging')
+    logger.info(f'{timestamp:%Y-%m-%d}: start logging')
 
     # create DB if does not exist
     DB = setup(scraperID=settings['scraperID'], timestamp=timestamp)
