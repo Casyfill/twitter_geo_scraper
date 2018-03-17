@@ -12,6 +12,8 @@ LOGS = Path(os.path.expandvars(os.getenv('TWITTERLOGS', '.')))
 def getLogger(recent=False):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
+    logger.handlers = []
+    logger.propagate = False
 
     filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_scraping.log')
     handler = logging.FileHandler( filepath )

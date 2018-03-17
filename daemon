@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 start() {
-  source activate py36 && python /root/twitter_geo_scraper/twitter_scraper.py &echo $! >  /tmp/daemon-pid
+  /root/miniconda/envs/py36/bin/python /root/twitter_geo_scraper/twitter_scraper.py;
 }
 
 stop() {
-  kill $(cat /tmp/daemon-pid)
-  source deactivate
+  pkill -f twitter_scraper.py
 }
 
 case $1 in
