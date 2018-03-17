@@ -1,2 +1,3 @@
+
 MAILTO="casyfill@gmail.com"
-12  0 */15 * * ../../../green-projects/project-qc_soc_media/workspace/share/twitter_geo_scraper/reboot_twitter.sh  2>&1;
+12  0 */3 * * systemctl stop twitter_scraper.service; systemctl start twitter_scraper.service;
