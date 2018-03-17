@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+start() {
+  source activate py36 && python /root/twitter_geo_scraper/twitter_scraper.py &echo $! >  /tmp/daemon-pid
+}
+
+stop() {
+  kill $(cat /tmp/daemon-pid)
+  source deactivate
+}
+
+case $1 in
+  start|stop) "$1" ;;
+esac

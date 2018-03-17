@@ -3,7 +3,7 @@ from misc.setup import setup
 from misc.logger import getLogger
 # from misc import mailer
 import yaml
-
+from os.path import dirname, join, abspath
 import time
 import datetime
 # import csv
@@ -13,9 +13,10 @@ import signal
 import sys
 import os
 import re
+local_folder = dirname(__file__)
 
 def get_local_settings():
-    with open('settings.yaml', 'r') as f:
+    with open(join(local_folder, 'settings.yaml'), 'r') as f:
         s = yaml.safe_load(f)
     return s
 
