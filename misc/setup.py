@@ -4,7 +4,7 @@ import datetime
 from  pathlib import Path
 import os
 
-DATAPATH = Path(os.path.expandvars(os.getenv("TWITTERDATAPATH", '.')))
+DATAPATH = Path(os.path.expandvars(os.getenv("TWITTERDATAPATH", '/root/data_dumps')))
 
 def setup(scraperID, timestamp):
 	'''generate database'''
