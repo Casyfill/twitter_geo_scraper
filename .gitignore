@@ -6,3 +6,4 @@ twitter
 .ipynb_checkpoints/
 .ibynb
 
+data_pipelines/2016-2017_tweets.pkl
