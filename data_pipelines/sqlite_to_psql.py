@@ -8,7 +8,7 @@ import luigi
 # import pandas as pd
 from luigi.contrib.postgres import CopyToTable, PostgresTarget
 
-DATA_PATH = '/root/data_dumps'
+DATA_PATH = os.getenv('TWITTERDATAPATH') #'/root/data_dumps'
 
 class SQLite_to_Postgres(CopyToTable):
 
