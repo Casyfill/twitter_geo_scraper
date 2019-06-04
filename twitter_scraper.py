@@ -2,7 +2,7 @@ from misc.auth import getTwitter
 from misc.setup import setup
 from misc.logger import getLogger
 import pandas as pd
-
+# from psycopg2.extras import execute_values
 import time
 import datetime
 # import csv
@@ -137,7 +137,8 @@ def main():
                     if len(df) > 0:
                         print(f'Writing to {name}: {len(df)}')
                         df.to_sql(name, con=conn, if_exists='append')
-                
+                    else:
+                        print(f'No data in {name}')
                 conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
