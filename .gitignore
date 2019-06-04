@@ -7,3 +7,4 @@ twitter
 .ibynb
 
 */.DS_Store
+*/credentials.yaml

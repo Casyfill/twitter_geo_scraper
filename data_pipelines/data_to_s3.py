@@ -7,15 +7,15 @@ from glob import glob
 import pandas as pd
 import psycopg2
 from luigi.tools.range import RangeMonthly
-# CREDS_PATH = join(dirname(__file__), '..', '..', 'credentials.json')
+import yaml
+with (Path(__file__).parent / 'credentials.yaml').open('r') as f:
+	creds = yaml.safe_load(f)
 
 class DOClient(S3Client):
 
 	def __init__(self):
-		super().__init__(aws_access_key_id='S77RF4XVGAPRMY4B6QV2',
-					     aws_secret_access_key ='bxHXhKRkRPBDgkCYP8PXlEz7YdS63lRFKo/VIXSOpNQ',
-					     region_name='nyc3',
-					     endpoint_url='https://nyc3.digitaloceanspaces.com')
+		super().__init__(endpoint_url='https://nyc3.digitaloceanspaces.com',
+						 **creds['spaces'])
 
 class Dump_month_to_s3(luigi.Task):
 	client = DOClient()
@@ -69,7 +69,7 @@ class Bulk_dump_s3(RangeMonthly):
     )
 
 	of = Dump_month_to_s3
-	of_params = {'v':v}
+	of_params = {'v':0.1}
 	start = luigi.MonthParameter(default=datetime(2014,1,1))
 	months_back = luigi.IntParameter(default=60)
 
