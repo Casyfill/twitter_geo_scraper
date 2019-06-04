@@ -5,31 +5,10 @@ from pathlib import Path
 from datetime import datetime, time
 from glob import glob
 import pandas as pd
-<<<<<<< HEAD
 from datetime import date
 import psycopg2
 from luigi.tools.range import RangeMonthly
-import yaml
 
-with (Path(__file__).parent / '../config.yaml').open('r') as f:
-	creds = yaml.safe_load(f)
-
-class DOClient(S3Client):
-
-	def __init__(self):
-		super().__init__(endpoint_url='https://nyc3.digitaloceanspaces.com',
-						 **creds['spaces'])
-class SpaceTask(luigi.Task):
-	client = DOClient()
-
-	def _upload_csv(self, df, path):
-		content = df.to_csv(float_format="%.3f", index=None)
-		self.client.put_string(content=content, 
-							   destination_s3_path=path,
-							   ContentType="text/csv")
-=======
-import psycopg2
-from luigi.tools.range import RangeMonthly
 # CREDS_PATH = join(dirname(__file__), '..', '..', 'credentials.json')
 
 class DOClient(S3Client):
@@ -58,7 +37,6 @@ class Dump_month_to_s3(luigi.Task):
 	Q = '''SELECT id, user_id, timestamp, lat, lon, application, ct FROM tweets
 		WHERE timestamp >= {S} AND timestamp < {E};
 		'''
->>>>>>> proper export dag
 
 	@property
 	def period(self):
@@ -66,7 +44,6 @@ class Dump_month_to_s3(luigi.Task):
 		B = datetime.combine(luigi.MonthParameter().next_in_enumeration(self.month), time.min).timestamp()
 		return A, B
 
-<<<<<<< HEAD
 class Dump_month_to_s3(SpaceTask):
 	month = luigi.MonthParameter(default=datetime(2014,1,1))
 	v = luigi.NumericalParameter(
@@ -144,18 +121,6 @@ class GenerateTimeline(SpaceTask):
 		self._upload_csv(data, self.output().path)
 
 
-=======
-	def _get_data(self):
-		Q = self.Q.format(S=self.period[0], E=self.period[1])
-		return pd.read_sql(Q, self.pgscon)
-
-	def output(self):
-		s3_path = self.s3_base.format(date=self.month, v=self.v)
-		return S3Target(path=s3_path, client=self.client)
-
-	def run(self):
-		data = self._get_data()
-		print(f'uploading {len(data)} rows for {self.month}')
 		self._upload_csv(data, self.output().path)
 
 	def _upload_csv(self, df, path):
