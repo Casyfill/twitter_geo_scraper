@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime, time
 from glob import glob
 import pandas as pd
+from datetime import date
 import psycopg2
 from luigi.tools.range import RangeMonthly
 # CREDS_PATH = join(dirname(__file__), '..', '..', 'credentials.json')
@@ -85,7 +86,7 @@ class Bulk_dump_s3(RangeMonthly):
 class GenerateTimeline(SpaceTask):
 	
 	date = luigi.DateParameter(default=date.today())
-	origin = luigi.Parameter(var_type=str, default='DO')
+	origin = luigi.Parameter(default='DO')
 	s3_base = 's3://qctwitterarchive/postgresql_dump/timeline_{origin}_{date:%Y-%m-%d}.csv'
 	pgscon = psycopg2.connect(
 		host='localhost',
@@ -98,7 +99,8 @@ class GenerateTimeline(SpaceTask):
 		   extract(year from to_timestamp(timestamp)) as yyyy,
 		   to_char(to_timestamp(timestamp), 'Mon') as mon,
 	       count(*) as tweets
-           FROM tweets GROUP by 1, 2
+           FROM tweets
+		   GROUP by 1, 2
 		   ORDER BY yyyy, mon;
 		'''
 
