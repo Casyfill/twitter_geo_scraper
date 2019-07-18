@@ -7,6 +7,7 @@ import time
 import datetime
 # import csv
 import json
+<<<<<<< HEAD
 # import os
 import re
 import signal
@@ -21,6 +22,14 @@ import yaml
 from .misc.auth import getTwitter
 from .misc.logger import getLogger
 from .misc.setup import setup
+=======
+# import sqlite3
+import psycopg2
+import signal
+import sys
+# import os
+import re
+>>>>>>> working with geoview
 
 # import sqlite3
 # Total of 20 seconds sleep between rounds
@@ -38,6 +47,7 @@ def getSource(txt):
         return 'unknnown'
 
 
+<<<<<<< HEAD
 def _get_psql_connection(user=None, password=None, host='localhost', port='5432', database='twitter'):
     if user is None or password is None:
         con_string = f'postgresql+psycopg2:///{database}'
@@ -47,6 +57,16 @@ def _get_psql_connection(user=None, password=None, host='localhost', port='5432'
     
     return engine.connect()
 
+=======
+def _get_psql_connection():
+    connection = psycopg2.connect(
+            host='localhost',
+            database='twitter',
+            user='root',
+            password='newyork04')
+    connection.set_client_encoding('utf-8')
+    return connection
+>>>>>>> working with geoview
 
 def main():
     '''main process'''
@@ -56,13 +76,22 @@ def main():
     # create DB if does not exist
 
 
+<<<<<<< HEAD
     #ID = setup('DO2', ts)
+=======
+    ID = setup('DO2', ts)
+>>>>>>> working with geoview
 
     # Connect to DB
     logger.info('Connecting to postgress')
 
+<<<<<<< HEAD
     conn = _get_psql_connection(**config['database'])
 
+=======
+    conn = _get_psql_connection()
+    # conn = sqlite3.connect('data/%s.db' % ID)
+>>>>>>> working with geoview
 
     def signal_handler(signal, frame):
         # Close connection on interrupt
@@ -128,7 +157,11 @@ def main():
                         'text':status['text'],
                         'user_id':user['id'],
                         'rtwts':status['retweet_count'],
+<<<<<<< HEAD
                         #'fwrts':status['favorite_count'],
+=======
+                        'fwrts':status['favorite_count'],
+>>>>>>> working with geoview
                         'application':getSource(status['source']),
                         'raw':json.dumps(status)
                     })
@@ -148,6 +181,14 @@ def main():
             }
 
             try:
+<<<<<<< HEAD
+=======
+                dbs = {
+                'tweets' : pd.DataFrame(tweets),
+                'users' : pd.DataFrame(users)
+                }
+
+>>>>>>> working with geoview
                 for name, df in dbs.items():
                     if len(df) > 0:
                         print(f'Writing to {name}: {len(df)}')
@@ -160,10 +201,16 @@ def main():
 
 
             except Exception as e:
+<<<<<<< HEAD
                 logger.info(f'Failed saving tweets, reconnecting')
                 logger.info(str(e))
                 time.sleep(60)
                 conn = _get_psql_connection(**config['database'])
+=======
+                logger.info(f'Failed saving tweets, reconnecting: {e}')
+                time.sleep(60)
+                conn = _get_psql_connection()
+>>>>>>> working with geoview
 
             # Sleep between nodes
             # logger.info('sleep for %f' % sleepTime)
