@@ -1,24 +1,18 @@
 from misc.auth import getTwitter
 from misc.setup import setup
 from misc.logger import getLogger
-# from misc import mailer
-import yaml
-from os.path import dirname, join, abspath
+import pandas as pd
+# from psycopg2.extras import execute_values
 import time
 import datetime
 # import csv
 import json
-import sqlite3
+# import sqlite3
+import psycopg2
 import signal
 import sys
-import os
+# import os
 import re
-local_folder = dirname(__file__)
-
-def get_local_settings():
-    with open(join(local_folder, 'settings.yaml'), 'r') as f:
-        s = yaml.safe_load(f)
-    return s
 
 
 def getSource(txt):
@@ -30,19 +24,30 @@ def getSource(txt):
         return 'unknnown'
 
 
+def _get_psql_connection():
+    connection = psycopg2.connect(
+            host='localhost',
+            database='twitter',
+            user='root',
+            password='newyork04')
+    connection.set_client_encoding('utf-8')
+    return connection
+
 def main():
     '''main process'''
     logger = getLogger()
-    settings = get_local_settings()
-    timestamp = datetime.datetime.now()
-    logger.info(f'{timestamp:%Y-%m-%d}: start logging')
-
+    ts = datetime.datetime.now()
+    logger.info(f'{ts:%Y_%m_%d}: start logging')
     # create DB if does not exist
-    DB = setup(scraperID=settings['scraperID'], timestamp=timestamp)
+
+
+    ID = setup('DO2', ts)
 
     # Connect to DB
-    logger.info(f'Connecting to {DB}')
-    conn = sqlite3.connect(DB)
+    logger.info('Connecting to postgress')
+
+    conn = _get_psql_connection()
+    # conn = sqlite3.connect('data/%s.db' % ID)
 
     def signal_handler(signal, frame):
         # Close connection on interrupt
@@ -71,6 +76,7 @@ def main():
 
     while True:
         logger.info('cycle: getting tweets...')
+        print('cycle: getting tweets...')
         for node in nodes:
             # Execute Query
             try:
@@ -99,44 +105,49 @@ def main():
                         '%a %b %d %H:%M:%S +0000 %Y'
                     ).strftime("%s"))
 
-                    tweets.append((
-                        status['id_str'],
-                        timestamp,
-                        status['geo']['coordinates'][0],
-                        status['geo']['coordinates'][1],
-                        status['text'],
-                        user['id'],
-                        status['retweet_count'],
-                        status['favorite_count'],
-                        getSource(status['source']),
-                        settings['scraperID'],
-                        json.dumps(status)
-                    ))
-                    users.append((
-                        user['id'],
-                        timestamp,
-                        json.dumps(user)
-                    ))
+                    tweets.append({
+                        'id':status['id_str'],
+                        'timestamp': timestamp,
+                        'lon':status['geo']['coordinates'][0],
+                        'lat':status['geo']['coordinates'][1],
+                        'text':status['text'],
+                        'user_id':user['id'],
+                        'rtwts':status['retweet_count'],
+                        'fwrts':status['favorite_count'],
+                        'application':getSource(status['source']),
+                        'raw':json.dumps(status)
+                    })
+                    users.append({
+                        'id':user['id'],
+                        'timestamp':timestamp,
+                        'raw':json.dumps(user)
+                    })
 
                 else:
                     pass
 
             # Add to DB
             try:
-                cursor = conn.cursor()
-                cursor.executemany(
-                    'INSERT OR IGNORE INTO tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', tweets)
-                cursor.executemany(
-                    'INSERT OR IGNORE INTO users VALUES (?, ?, ?)', users)
+                dbs = {
+                'tweets' : pd.DataFrame(tweets),
+                'users' : pd.DataFrame(users)
+                }
+
+                for name, df in dbs.items():
+                    if len(df) > 0:
+                        print(f'Writing to {name}: {len(df)}')
+                        df.to_sql(name, con=conn, if_exists='append')
+                    else:
+                        print(f'No data in {name}')
                 conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
 
 
             except Exception as e:
-                logger.info('Failed saving tweets, reconnecting: %s' % e)
+                logger.info(f'Failed saving tweets, reconnecting: {e}')
                 time.sleep(60)
-                conn = sqlite3.connect('data/%s.db' % ID)
+                conn = _get_psql_connection()
 
             # Sleep between nodes
             # logger.info('sleep for %f' % sleepTime)

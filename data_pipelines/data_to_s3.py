@@ -32,7 +32,7 @@ class Dump_month_to_s3(luigi.Task):
 		password='newyork04'
 	)
 		
-	Q = '''SELECT id, user_id, timestamp, lat, lon, application, ct FROM tweets
+	Q = '''SELECT id, user_id, timestamp, lat, lon, application, ct FROM geotweets
 		WHERE timestamp >= {S} AND timestamp < {E};
 		'''
 
