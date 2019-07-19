@@ -9,6 +9,7 @@ from datetime import date
 import psycopg2
 from luigi.tools.range import RangeMonthly
 import yaml
+
 with (Path(__file__).parent / 'credentials.yaml').open('r') as f:
 	creds = yaml.safe_load(f)
 
@@ -24,7 +25,8 @@ class SpaceTask(luigi.Task):
 
 	def _upload_csv(self, df, path):
 		content = df.to_csv(float_format="%.3f", index=None)
-		self.client.put_string(content=content, destination_s3_path=path,
+		self.client.put_string(content=content, 
+							   destination_s3_path=path,
 							   ContentType="text/csv")
 
 
@@ -37,10 +39,7 @@ class Dump_month_to_s3(SpaceTask):
 
 	s3_base = 's3://qctwitterarchive/postgresql_dump/{v}/{date:%Y/%m}.csv'
 	pgscon = psycopg2.connect(
-		host='localhost',
-		database='twitter',
-		user='root',
-		password='newyork04'
+		**creds['database']
 	)
 		
 	Q = '''SELECT id, user_id, timestamp, lat, lon, application, ct FROM geotweets
@@ -85,10 +84,7 @@ class GenerateTimeline(SpaceTask):
 	origin = luigi.Parameter(default='DO')
 	s3_base = 's3://qctwitterarchive/postgresql_dump/timeline_{origin}_{date:%Y-%m-%d}.csv'
 	pgscon = psycopg2.connect(
-		host='localhost',
-		database='twitter',
-		user='root',
-		password='newyork04'
+		**creds['database']
 	)
 		
 	Q = '''SELECT 
