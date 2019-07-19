@@ -6,5 +6,9 @@ twitter
 .ipynb_checkpoints/
 .ibynb
 
+
 */.DS_Store
 */credentials.yaml
+**/*.pkl
+**/credentials.yaml
+
