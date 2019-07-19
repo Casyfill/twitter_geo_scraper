@@ -5,24 +5,35 @@ from pathlib import Path
 from datetime import datetime, time
 from glob import glob
 import pandas as pd
+from datetime import date
 import psycopg2
 from luigi.tools.range import RangeMonthly
-# CREDS_PATH = join(dirname(__file__), '..', '..', 'credentials.json')
+import yaml
+with (Path(__file__).parent / 'credentials.yaml').open('r') as f:
+	creds = yaml.safe_load(f)
 
 class DOClient(S3Client):
 
 	def __init__(self):
-		super().__init__(aws_access_key_id='S77RF4XVGAPRMY4B6QV2',
-					     aws_secret_access_key ='bxHXhKRkRPBDgkCYP8PXlEz7YdS63lRFKo/VIXSOpNQ',
-					     region_name='nyc3',
-					     endpoint_url='https://nyc3.digitaloceanspaces.com')
+		super().__init__(endpoint_url='https://nyc3.digitaloceanspaces.com',
+						 **creds['spaces'])
 
-class Dump_month_to_s3(luigi.Task):
+
+class SpaceTask(luigi.Task):
 	client = DOClient()
+
+	def _upload_csv(self, df, path):
+		content = df.to_csv(float_format="%.3f", index=None)
+		self.client.put_string(content=content, destination_s3_path=path,
+							   ContentType="text/csv")
+
+
+class Dump_month_to_s3(SpaceTask):
 	month = luigi.MonthParameter(default=datetime(2014,1,1))
 	v = luigi.NumericalParameter(
-        default=0.1, var_type=float, min_value=0, max_value=100
+        default=1.0, var_type=float, min_value=0, max_value=100
     )
+	
 
 	s3_base = 's3://qctwitterarchive/postgresql_dump/{v}/{date:%Y/%m}.csv'
 	pgscon = psycopg2.connect(
@@ -55,12 +66,6 @@ class Dump_month_to_s3(luigi.Task):
 		print(f'uploading {len(data)} rows for {self.month}')
 		self._upload_csv(data, self.output().path)
 
-	def _upload_csv(self, df, path):
-		content = df.to_csv(float_format="%.3f", index=None)
-		self.client.put_string(content=content, destination_s3_path=path,
-							   ContentType="text/csv")
-
-
 
 class Bulk_dump_s3(RangeMonthly):
 
@@ -69,38 +74,41 @@ class Bulk_dump_s3(RangeMonthly):
     )
 
 	of = Dump_month_to_s3
-	of_params = {'v':v}
+	of_params = {'v':1.0}
 	start = luigi.MonthParameter(default=datetime(2014,1,1))
 	months_back = luigi.IntParameter(default=60)
 
-# class send_file_to_S3(luigi.Task):
-#     path = luigi.Parameter()
-# 	client = S3Client()
 
-#     def  output(self):
-# 		s3_path =  self.s3_base + basename(self.path)
-# 		return S3Target(path=s3_path, client=self.client)
+class GenerateTimeline(SpaceTask):
+	
+	date = luigi.DateParameter(default=date.today())
+	origin = luigi.Parameter(default='DO')
+	s3_base = 's3://qctwitterarchive/postgresql_dump/timeline_{origin}_{date:%Y-%m-%d}.csv'
+	pgscon = psycopg2.connect(
+		host='localhost',
+		database='twitter',
+		user='root',
+		password='newyork04'
+	)
+		
+	Q = '''SELECT 
+		   extract(year from to_timestamp(timestamp)) as yyyy,
+		   to_char(to_timestamp(timestamp), 'Mon') as mon,
+	       count(*) as tweets
+           FROM tweets
+		   GROUP by 1, 2
+		   ORDER BY yyyy, mon;
+		'''
 
-#     def run(self):
-# 		self.client.put(self.path, self.output().path,
-# 						headers={'Content-Type':'application/x-sqlite3'})
+	def output(self):
+		s3_path = self.s3_base.format(date=self.date, origin=self.origin)
+		return S3Target(path=s3_path, client=self.client)
+
+	def _get_data(self):
+		return pd.read_sql(self.Q, self.pgscon)
+
+	def run(self):
+		data = self._get_data()
+		self._upload_csv(data, self.output().path)
 
 
-# class send_all_db_to_S3(luigi.Task):
-# 	data_folder = os.getenv('TWITTERDATAPATH')
-# 	log_folder = os.getenv('TWITTERLOGS')
-# 	all_files = glob(data_folder + '/*.db')
-
-# 	def requires(self):
-# 		return [send_file_to_S3(path=p) for p in self.all_files]
-
-# 	def output(self):
-# 		return luigi.LocalTarget(join(self.log_folder, datetime.now().strftime('%Y-%m-%d_%H_%M.log')))
-
-# 	def run(self)
-# 		with self.output().open('r') as f:
-# 			f.write('all data moved to s3')
-
-
-# if __name__ == '__main__':
-#     luigi.run(main_task_cls=send_all_db_to_S3, local_scheduler=True)
