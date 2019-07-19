@@ -20,7 +20,7 @@ from misc.setup import setup
 
 
 with (Path(__file__).parent / '../config.yaml').open('r') as f:
-	creds = yaml.safe_load(f)
+	config = yaml.safe_load(f)
 
 def getSource(txt):
     sourcer = re.compile('(?:.*>)(.*)(?:<\/a>)')
@@ -49,7 +49,7 @@ def main():
     # Connect to DB
     logger.info('Connecting to postgress')
 
-    conn = _get_psql_connection()
+    conn = _get_psql_connection(**config['database'])
 
 
     def signal_handler(signal, frame):
