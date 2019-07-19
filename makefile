@@ -13,3 +13,5 @@ stop:
 list:
 	systemctl list-units;
 
+connect:
+	ssh root@165.227.118.82
