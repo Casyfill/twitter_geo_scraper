@@ -1,21 +1,26 @@
-from misc.auth import getTwitter
-from misc.setup import setup
-from misc.logger import getLogger
-import pandas as pd
-# from psycopg2.extras import execute_values
-# import psycopg2
-import sqlalchemy as sqa
-import time
 import datetime
 # import csv
 import json
-# import sqlite3
-
-import signal
-import sys
 # import os
 import re
+import signal
+import sys
+import time
+from pathlib import Path
 
+import pandas as pd
+import sqlalchemy as sqa
+import yaml
+
+from misc.auth import getTwitter
+from misc.logger import getLogger
+from misc.setup import setup
+
+# import sqlite3
+
+
+with (Path(__file__).parent / '../config.yaml').open('r') as f:
+	config = yaml.safe_load(f)
 
 def getSource(txt):
     sourcer = re.compile('(?:.*>)(.*)(?:<\/a>)')
@@ -44,7 +49,7 @@ def main():
     # Connect to DB
     logger.info('Connecting to postgress')
 
-    conn = _get_psql_connection()
+    conn = _get_psql_connection(**config['database'])
 
 
     def signal_handler(signal, frame):
