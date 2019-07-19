@@ -3,12 +3,14 @@ from misc.setup import setup
 from misc.logger import getLogger
 import pandas as pd
 # from psycopg2.extras import execute_values
+# import psycopg2
+import sqlalchemy as sqa
 import time
 import datetime
 # import csv
 import json
 # import sqlite3
-import psycopg2
+
 import signal
 import sys
 # import os
@@ -24,14 +26,10 @@ def getSource(txt):
         return 'unknnown'
 
 
-def _get_psql_connection():
-    connection = psycopg2.connect(
-            host='localhost',
-            database='twitter',
-            user='root',
-            password='newyork04')
-    connection.set_client_encoding('utf-8')
-    return connection
+def _get_psql_connection(user, password, host='localhost', port='5432', database='twitter'):
+    con_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+    return sqa.create_engine(con_string, client_encoding='utf8')
+
 
 def main():
     '''main process'''
@@ -41,13 +39,13 @@ def main():
     # create DB if does not exist
 
 
-    ID = setup('DO2', ts)
+    #ID = setup('DO2', ts)
 
     # Connect to DB
     logger.info('Connecting to postgress')
 
     conn = _get_psql_connection()
-    # conn = sqlite3.connect('data/%s.db' % ID)
+
 
     def signal_handler(signal, frame):
         # Close connection on interrupt
@@ -127,12 +125,12 @@ def main():
                     pass
 
             # Add to DB
-            try:
-                dbs = {
+            dbs = {
                 'tweets' : pd.DataFrame(tweets),
                 'users' : pd.DataFrame(users)
-                }
-
+            }
+            
+            try:
                 for name, df in dbs.items():
                     if len(df) > 0:
                         print(f'Writing to {name}: {len(df)}')
@@ -145,7 +143,8 @@ def main():
 
 
             except Exception as e:
-                logger.info(f'Failed saving tweets, reconnecting: {e}')
+                logger.info(f'Failed saving tweets, reconnecting')
+                logger.info(str(e))
                 time.sleep(60)
                 conn = _get_psql_connection()
 
