@@ -10,7 +10,7 @@ import psycopg2
 from luigi.tools.range import RangeMonthly
 import yaml
 
-with (Path(__file__).parent / 'credentials.yaml').open('r') as f:
+with (Path(__file__).parent / '../config.yaml').open('r') as f:
 	creds = yaml.safe_load(f)
 
 class DOClient(S3Client):

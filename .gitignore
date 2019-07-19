@@ -11,4 +11,5 @@ twitter
 */credentials.yaml
 **/*.pkl
 **/credentials.yaml
+config.yaml
 
