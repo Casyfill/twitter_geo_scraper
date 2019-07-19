@@ -19,7 +19,7 @@ from misc.setup import setup
 # import sqlite3
 
 
-with (Path(__file__).parent / '../config.yaml').open('r') as f:
+with (Path(__file__).parent / 'config.yaml').open('r') as f:
 	config = yaml.safe_load(f)
 
 def getSource(txt):
@@ -116,7 +116,7 @@ def main():
                         'text':status['text'],
                         'user_id':user['id'],
                         'rtwts':status['retweet_count'],
-                        'fwrts':status['favorite_count'],
+                        #'fwrts':status['favorite_count'],
                         'application':getSource(status['source']),
                         'raw':json.dumps(status)
                     })
@@ -134,15 +134,15 @@ def main():
                 'tweets' : pd.DataFrame(tweets),
                 'users' : pd.DataFrame(users)
             }
-            
+
             try:
                 for name, df in dbs.items():
                     if len(df) > 0:
                         print(f'Writing to {name}: {len(df)}')
-                        df.to_sql(name, con=conn, if_exists='append')
+                        df.to_sql(name, con=conn, if_exists='append', index=False)
                     else:
                         print(f'No data in {name}')
-                conn.commit()
+                #conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
 
@@ -151,7 +151,7 @@ def main():
                 logger.info(f'Failed saving tweets, reconnecting')
                 logger.info(str(e))
                 time.sleep(60)
-                conn = _get_psql_connection()
+                conn = _get_psql_connection(**config['database'])
 
             # Sleep between nodes
             # logger.info('sleep for %f' % sleepTime)
