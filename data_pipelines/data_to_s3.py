@@ -9,6 +9,7 @@ from datetime import date
 import psycopg2
 from luigi.tools.range import RangeMonthly
 import yaml
+
 with (Path(__file__).parent / 'credentials.yaml').open('r') as f:
 	creds = yaml.safe_load(f)
 
@@ -17,14 +18,13 @@ class DOClient(S3Client):
 	def __init__(self):
 		super().__init__(endpoint_url='https://nyc3.digitaloceanspaces.com',
 						 **creds['spaces'])
-
-
 class SpaceTask(luigi.Task):
 	client = DOClient()
 
 	def _upload_csv(self, df, path):
 		content = df.to_csv(float_format="%.3f", index=None)
-		self.client.put_string(content=content, destination_s3_path=path,
+		self.client.put_string(content=content, 
+							   destination_s3_path=path,
 							   ContentType="text/csv")
 
 
@@ -33,16 +33,13 @@ class Dump_month_to_s3(SpaceTask):
 	v = luigi.NumericalParameter(
         default=1.0, var_type=float, min_value=0, max_value=100
     )
-	
+
 
 	s3_base = 's3://qctwitterarchive/postgresql_dump/{v}/{date:%Y/%m}.csv'
 	pgscon = psycopg2.connect(
-		host='localhost',
-		database='twitter',
-		user='root',
-		password='newyork04'
+		**creds['database']
 	)
-		
+
 	Q = '''SELECT id, user_id, timestamp, lat, lon, application, ct FROM geotweets
 		WHERE timestamp >= {S} AND timestamp < {E};
 		'''
@@ -80,18 +77,15 @@ class Bulk_dump_s3(RangeMonthly):
 
 
 class GenerateTimeline(SpaceTask):
-	
+
 	date = luigi.DateParameter(default=date.today())
 	origin = luigi.Parameter(default='DO')
 	s3_base = 's3://qctwitterarchive/postgresql_dump/timeline_{origin}_{date:%Y-%m-%d}.csv'
 	pgscon = psycopg2.connect(
-		host='localhost',
-		database='twitter',
-		user='root',
-		password='newyork04'
+		**creds['database']
 	)
-		
-	Q = '''SELECT 
+
+	Q = '''SELECT
 		   extract(year from to_timestamp(timestamp)) as yyyy,
 		   to_char(to_timestamp(timestamp), 'Mon') as mon,
 	       count(*) as tweets
