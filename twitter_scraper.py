@@ -138,10 +138,10 @@ def main():
             try:
                 for name, df in dbs.items():
                     if len(df) > 0:
-                        print(f'Writing to {name}: {len(df)}')
+                        logger.info(f'Writing to {name}: {len(df)}')
                         df.to_sql(name, con=conn, if_exists='append', index=False)
                     else:
-                        print(f'No data in {name}')
+                        logger.info(f'No data in {name}')
                 #conn.commit()
 
                 node['since'] = t['search_metadata']['max_id_str']
