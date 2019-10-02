@@ -1,0 +1,18 @@
+[Unit]
+Description=scraping twitter for NYC
+After=multi-user.target
+
+[Service]
+Type=idle
+Environment="TWITTERCONSUMERKEY=TWITTERCONSUMERKEY"
+Environment="TWITTERCONSUMERSECRET=TWITTERCONSUMERSECRET"
+Environment="TWITTERACCESSTOKEN=TWITTERACCESSTOKEN"
+Environment="ACCESSTOKENSECRET=ACCESSTOKENSECRET"
+Environment="TWITTERLOGS=/root/logs"
+ExecStart=/root/twitter_geo_scraper/daemon start 1>&2;
+ExecStop=/root/twitter_geo_scraper/daemon stop 1>&2;
+Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target
