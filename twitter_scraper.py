@@ -33,7 +33,9 @@ def getSource(txt):
 
 def _get_psql_connection(user, password, host='localhost', port='5432', database='twitter'):
     con_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
-    return sqa.create_engine(con_string, client_encoding='utf8')
+    engine = sqa.create_engine(con_string, client_encoding='utf8')
+    
+    return engine.connect()
 
 
 def main():
