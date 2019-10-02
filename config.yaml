@@ -1,0 +1,11 @@
+origin: DO
+database:
+  host: localhost
+  password: newyork04
+  database: twitter
+  user: root
+
+spaces:
+  aws_access_key_id: KEY_ID
+  aws_secret_access_key: ACEESS_KEY
+  region_name: nyc3
