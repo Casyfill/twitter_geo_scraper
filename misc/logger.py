@@ -7,7 +7,7 @@ from glob import glob
 import os
 from pathlib import Path
 
-LOGS = Path(os.getenv('TWITTERLOGS', '.'))
+LOGS = Path(__file__).parent / '..' / 'logs'
 
 def getLogger(recent=False, level=logging.INFO):
     logger = logging.getLogger(__name__)
