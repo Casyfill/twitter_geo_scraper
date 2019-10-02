@@ -9,3 +9,9 @@ spaces:
   aws_access_key_id: KEY_ID
   aws_secret_access_key: ACEESS_KEY
   region_name: nyc3
+
+twitter:
+  TWITTERACCESSTOKEN: a
+  ACCESSTOKENSECRET: b
+  TWITTERCONSUMERKEY: c
+  TWITTERCONSUMERSECRET: d

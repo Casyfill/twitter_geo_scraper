@@ -66,7 +66,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     logger.info('Getting twitter connection')
-    twitter = getTwitter()
+    twitter = getTwitter(config['twitter'])
 
     nodes = [
         # {'geocode': '40.783288,-73.967090,7mi', 'since': '0'},
@@ -86,7 +86,7 @@ def main():
         logger.info('cycle: getting tweets...')
         print('cycle: getting tweets...')
         for node in nodes:
-            # Execute Query
+            # fExecute Query
             try:
                 t = twitter.search.tweets(geocode=node['geocode'],
                                           result_type='recent',
