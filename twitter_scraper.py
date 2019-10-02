@@ -31,8 +31,11 @@ def getSource(txt):
         return 'unknnown'
 
 
-def _get_psql_connection(user, password, host='localhost', port='5432', database='twitter'):
-    con_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+def _get_psql_connection(user=None, password=None, host='localhost', port='5432', database='twitter'):
+    if user is None or password is None:
+        con_string = f'postgresql+psycopg2:///{database}'
+    else:
+        con_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
     engine = sqa.create_engine(con_string, client_encoding='utf8')
     
     return engine.connect()
