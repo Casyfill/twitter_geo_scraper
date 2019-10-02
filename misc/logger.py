@@ -7,17 +7,17 @@ from glob import glob
 import os
 from pathlib import Path
 
-LOGS = Path(os.path.expandvars(os.getenv('TWITTERLOGS', '.')))
+LOGS = Path(os.getenv('TWITTERLOGS', '.'))
 
-def getLogger(recent=False):
+def getLogger(recent=False, level=logging.INFO):
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level)
     logger.handlers = []
     logger.propagate = False
 
     filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_scraping.log')
     handler = logging.FileHandler( filepath )
-    handler.setLevel(logging.INFO)
+    handler.setLevel(level)
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
