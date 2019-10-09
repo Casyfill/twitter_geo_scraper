@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 from ..misc.logger import getLogger
 from ..misc.mailer import send_message
+import sqlalchemy as sqa
 # import yaml
 
 with (Path(__file__).parent / '..' / 'config.yaml').open('r') as f:
