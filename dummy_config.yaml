@@ -16,5 +16,5 @@ twitter:
   TWITTERCONSUMERKEY: c
   TWITTERCONSUMERSECRET: d
 
-mailer:
+mailgun:
   apiKey: dummy

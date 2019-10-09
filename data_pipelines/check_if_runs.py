@@ -11,11 +11,11 @@ class Alert(luigi.Task):
     treshold = 100
 
     def _count_tweets(self, con):
-        Q = f'''SELECT COUNT(*) FROM tweets
+        self.query = f'''SELECT COUNT(*) FROM tweets
         WHERE (TIMESTAMP 'epoch' + timestamp * INTERVAL '1 second') BETWEEN '{self.date:%Y-%m-%d} 00:00:00' AND '{self.date:%Y-%m-%d} 23:59:59';
         '''
 
-        return con.execute(Q).fetchone()[0]
+        return con.execute(self.query).fetchone()[0]
     
     def alert(self, count):
         subject = f'CUSP2 Twitter Scraper Alert: {self.date:%Y-%m-%d}'
@@ -34,6 +34,7 @@ class Alert(luigi.Task):
 
         if count < self.treshold:
             self.alert(count)
+            raise Exception(count, self.query)
 
         logger.info(f'Got {count} tweets stored for {self.date}')
 
