@@ -15,7 +15,7 @@ def getLogger(recent=False, level=logging.INFO, mode='scraping'):
     logger.handlers = []
     logger.propagate = False
 
-    filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_{self.mode}.log')
+    filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_{mode}.log')
     print(filepath)
     handler = logging.FileHandler( filepath )
     handler.setLevel(level)
