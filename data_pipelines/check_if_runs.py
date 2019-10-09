@@ -6,7 +6,7 @@ from ..misc.mailer import send_message
 # import yaml
 
 class Alert(luigi.Task):
-    date = luigi.DateParam(default=date.today())
+    date = luigi.DateParameter(default=date.today())
     database = config['database']['database']
     treshold = 100
 
