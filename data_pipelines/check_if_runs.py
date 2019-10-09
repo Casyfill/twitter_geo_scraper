@@ -15,7 +15,7 @@ class Alert(luigi.Task):
         WHERE (TIMESTAMP 'epoch' + timestamp * INTERVAL '1 second') BETWEEN '{self.date:%Y-%m-%d} 00:00:00' AND '{self.date:%Y-%m-%d} 23:59:59';
         '''
 
-        return con.execute(Q).fetchone()
+        return con.execute(Q).fetchone()[0]
     
     def alert(self, count):
         subject = f'CUSP2 Twitter Scraper Alert: {self.date:%Y-%m-%d}'
