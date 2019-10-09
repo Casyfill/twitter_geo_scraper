@@ -7,7 +7,6 @@ import time
 import datetime
 # import csv
 import json
-<<<<<<< HEAD
 # import os
 import re
 import signal
@@ -22,14 +21,6 @@ import yaml
 from .misc.auth import getTwitter
 from .misc.logger import getLogger
 from .misc.setup import setup
-=======
-# import sqlite3
-import psycopg2
-import signal
-import sys
-# import os
-import re
->>>>>>> working with geoview
 
 # import sqlite3
 # Total of 20 seconds sleep between rounds
