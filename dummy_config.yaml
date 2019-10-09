@@ -15,3 +15,6 @@ twitter:
   ACCESSTOKENSECRET: b
   TWITTERCONSUMERKEY: c
   TWITTERCONSUMERSECRET: d
+
+mailer:
+  apiKey: dummy
