@@ -1,9 +1,22 @@
 import luigi
 from datetime import date
-from ..twitter_scraper import config, _get_psql_connection
+import yaml
+from pathlib import Path
 from ..misc.logger import getLogger
 from ..misc.mailer import send_message
 # import yaml
+
+with (Path(__file__).parent / '..' / 'config.yaml').open('r') as f:
+	config = yaml.safe_load(f)
+
+def _get_psql_connection(user=None, password=None, host='localhost', port='5432', database='twitter'):
+    if user is None or password is None:
+        con_string = f'postgresql+psycopg2:///{database}'
+    else:
+        con_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+    engine = sqa.create_engine(con_string, client_encoding='utf8')
+    
+    return engine.connect()
 
 class Alert(luigi.Task):
     date = luigi.DateParameter(default=date.today())
