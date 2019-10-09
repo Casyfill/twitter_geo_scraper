@@ -147,7 +147,7 @@ def main():
                 for name, df in dbs.items():
                     if len(df) > 0:
                         print(f'Writing to {name}: {len(df)}')
-                        df.to_sql(name, con=conn, if_exists='append')
+                        df.to_sql(name, con=conn, if_exists='append', index=False)
                     else:
                         print(f'No data in {name}')
                 conn.commit()
