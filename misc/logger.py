@@ -9,13 +9,13 @@ from pathlib import Path
 
 LOGS = Path(__file__).parent / '..' / 'logs'
 
-def getLogger(recent=False, level=logging.INFO):
+def getLogger(recent=False, level=logging.INFO, mode='scraping'):
     logger = logging.getLogger(__name__)
     logger.setLevel(level)
     logger.handlers = []
     logger.propagate = False
 
-    filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_scraping.log')
+    filepath = str( LOGS / f'{datetime.datetime.now():%Y-%m-%d}_{self.mode}.log')
     print(filepath)
     handler = logging.FileHandler( filepath )
     handler.setLevel(level)

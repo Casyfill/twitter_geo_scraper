@@ -44,7 +44,7 @@ class Alert(luigi.Task):
         con = _get_psql_connection(**config['database'])
         count = self._count_tweets(con)
 
-        logger = getLogger()
+        logger = getLogger(mode='check')
 
         if count < self.treshold:
             self.alert(count)
