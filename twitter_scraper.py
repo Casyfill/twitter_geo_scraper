@@ -12,9 +12,9 @@ import pandas as pd
 import sqlalchemy as sqa
 import yaml
 
-from misc.auth import getTwitter
-from misc.logger import getLogger
-from misc.setup import setup
+from .misc.auth import getTwitter
+from .misc.logger import getLogger
+from .misc.setup import setup
 
 # import sqlite3
 # Total of 20 seconds sleep between rounds
