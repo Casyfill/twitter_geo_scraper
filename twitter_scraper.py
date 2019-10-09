@@ -1,7 +1,3 @@
-from misc.auth import getTwitter
-from misc.setup import setup
-from misc.logger import getLogger
-import pandas as pd
 # from psycopg2.extras import execute_values
 import time
 import datetime
