@@ -21,7 +21,9 @@ class Alert(luigi.Task):
         subject = f'CUSP2 Twitter Scraper Alert: {self.date:%Y-%m-%d}'
         text = f'For {self.date:%Y-%m-%d}, found only {count} tweets!'
         recipients = ['casyfill@gmail.com',]
-        send_message(text=text, recipinets=recipients, subject=subject,
+        send_message(text=text,
+                     recipients=recipients, 
+                     subject=subject,
                      apiKey=config['mailgun']['apiKey'])
 
     def run(self):
