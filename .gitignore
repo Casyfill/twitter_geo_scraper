@@ -7,14 +7,9 @@ twitter
 .ibynb
 
 
-<<<<<<< HEAD
-.DS_Store
-.vscode/
-=======
 */.DS_Store
 */credentials.yaml
 **/*.pkl
 **/credentials.yaml
 config.yaml
-
->>>>>>> aa613ab3e3e6c205e2e9caf167c5a1486b26d279
+logs/*.log

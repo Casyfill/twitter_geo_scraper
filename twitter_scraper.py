@@ -17,7 +17,8 @@ from misc.logger import getLogger
 from misc.setup import setup
 
 # import sqlite3
-
+# Total of 20 seconds sleep between rounds
+TIME = 25.
 
 with (Path(__file__).parent / 'config.yaml').open('r') as f:
 	config = yaml.safe_load(f)
@@ -78,8 +79,8 @@ def main():
         {'geocode': '40.580584,-74.152908,9mi', 'since': '0'}
     ]
 
-    # Total of 20 seconds sleep between rounds
-    sleepTime = 20. / len(nodes)
+    
+    sleepTime = TIME / len(nodes)
     # today = datetime.datetime.today()
 
     while True:
