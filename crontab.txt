@@ -1,3 +1,6 @@
 
-MAILTO="casyfill@gmail.com"
-12  0 */3 * * systemctl stop twitter_scraper.service; systemctl start twitter_scraper.service;
+# MAILTO="casyfill@gmail.com"
+# 12  0 */3 * * systemctl stop twitter_scraper.service; systemctl start twitter_scraper.service;
+
+# 9 14 * * * /bin/bash "/home/cusp/pbk236/twitter_geo_scraper/scrape.sh"
+# 25 13 * * *  ~/.conda/envs/py36/bin/python -m luigi --module twitter_geo_scraper.data_pipelines.check_if_runs Alert --local-scheduler
